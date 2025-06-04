@@ -9,8 +9,6 @@ class M11InclusionExclusion:
         self._builder = builder
         self._errors = errors
         self._raw_docx = raw_docx
-        self._id_manager = self._globals.id_manager
-        self._cdisc_ct_library = self._globals.cdisc_ct_library
         self.inclusion = []
         self.exclusion = []
 

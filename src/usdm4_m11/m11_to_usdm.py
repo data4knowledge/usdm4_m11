@@ -43,6 +43,7 @@ class M11ToUSDM:
     def __init__(
         self,
         builder: Builder,
+        errors: Errors,
         title_page: M11TitlePage,
         inclusion_exclusion: M11InclusionExclusion,
         estimands: M11IEstimands,
@@ -58,8 +59,6 @@ class M11ToUSDM:
         self._estimands = estimands
         self._amendment = amendment
         self._sections = sections
-        self._id_manager = self._globals.id_manager
-        self._cdisc_ct_library = self._globals.cdisc_ct_library
         self._system_name = system_name
         self._system_version = system_version
 
@@ -81,7 +80,7 @@ class M11ToUSDM:
                 systemVersion=self._system_version,
             ).to_json()
         except Exception as e:
-            application_logger.exception(
+            self._errors.exception(
                 "Exception raised parsing M11 content. See logs for more details", e
             )
             return None
@@ -149,8 +148,6 @@ class M11ToUSDM:
         protocol_date_code = self._builder.cdisc_code(
             "C99903x1",
             "Protocol Effective Date",
-            self._cdisc_ct_library,
-            self._id_manager,
         )
         global_code = self._builder.cdisc_code("C68846", "Global")
         global_scope = self._builder.create(

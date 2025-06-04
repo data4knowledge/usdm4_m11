@@ -5,7 +5,7 @@ from usdm4.api.code import Code
 # from usdm4_m11.errors.errors import Errors
 
 
-def text_within(this_text, in_text):
+def text_within(this_text: str, in_text: str) -> bool:
     return this_text.upper() in in_text.upper()
 
 
