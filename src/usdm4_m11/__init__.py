@@ -12,6 +12,7 @@ from usdm4_m11.import_.m11_miscellaneous import M11Miscellaneous
 from usdm4_m11.import_.m11_utility import *
 from usdm4_m11.errors.errors import Errors
 
+
 class USDM4M11:
     def __init__(self, filepath):
         self._builder = Builder()

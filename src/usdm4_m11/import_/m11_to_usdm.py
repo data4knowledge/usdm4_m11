@@ -34,6 +34,9 @@ from usdm4_m11.import_.m11_amendment import M11IAmendment
 from usdm4_m11.import_.m11_sections import M11Sections
 from usdm4_m11.import_.m11_utility import *
 from usdm4.api.address import Address
+from usdm4_m11.__version__ import __package_version__ as system_version
+from usdm4_m11.__version__ import __system_name__ as system_name
+
 
 class M11ToUSDM:
     DIV_OPEN_NS = '<div xmlns="http://www.w3.org/1999/xhtml">'
@@ -49,8 +52,6 @@ class M11ToUSDM:
         estimands: M11IEstimands,
         amendment: M11IAmendment,
         sections: M11Sections,
-        system_name,
-        system_version,
     ):
         self._builder = builder
         self._errors = errors
@@ -59,7 +60,7 @@ class M11ToUSDM:
         self._estimands = estimands
         self._amendment = amendment
         self._sections = sections
-        self._system_name = self.SYSTEM_NAME
+        self._system_name = system_name
         self._system_version = system_version
 
     def export(self) -> Wrapper:
@@ -67,8 +68,6 @@ class M11ToUSDM:
             study = self._study()
             doc_version = self._document_version(study)
             study_version = self._study_version(study)
-            # root = self._builder.create(NarrativeContent, {'name': 'ROOT', 'sectionNumber': '0', 'sectionTitle': 'Root', 'text': '', 'childIds': [], 'previousId': None, 'nextId': None})
-            # doc_version.contents.append(root)
             local_index = self._section_to_narrative(
                 None, 0, 1, doc_version, study_version
             )
