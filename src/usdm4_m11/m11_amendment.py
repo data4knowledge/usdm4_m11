@@ -168,10 +168,10 @@ class M11IAmendment:
                             self._id_manager,
                         )
                         return {"code": code, "other_reason": ""}
-            application_logger.warning(f"Unable to decode amendment reason '{reason}'")
+            self._errors.warning(f"Unable to decode amendment reason '{reason}'")
             code = self._builder.cdisc_code("C17649", "Other")
             return {"code": code, "other_reason": parts[1].strip()}
-        application_logger.warning(f"Amendment reason '{key}' not decoded")
+        self._errors.warning(f"Amendment reason '{key}' not decoded")
         code = self._builder.cdisc_code("C17649", "Other")
         return {"code": code, "other_reason": "No reason text found"}
 
@@ -186,7 +186,7 @@ class M11IAmendment:
         global_code = self._builder.cdisc_code("C68846", "Global")
         percent_code = self._builder.cdisc_code("C25613", "Percentage")
         unit_code = percent_code if unit == "%" else None
-        unit_alias = alias_code(unit_code) if unit_code else None
+        unit_alias = self._builder.alias_code(unit_code) if unit_code else None
         quantity = self._builder.create(
             Quantity, {"value": value, "unit": unit_alias}, self._id_manager
         )

@@ -12,8 +12,6 @@ class M11TitlePage:
         self._builder = builder
         self._errors = errors
         self._raw_docx = raw_docx
-        self._id_manager = self._globals.id_manager
-        self._cdisc_ct_library = self._globals.cdisc_ct_library
         self._iso = ISO3166(self._globals)
         self._address_service = None  # Will need to be addressed
         self._sections = []
@@ -203,7 +201,7 @@ class M11TitlePage:
             else:
                 return None
         except Exception as e:
-            application_logger.exception(
+            self._errors.exception(
                 f"Exception raised during date processing for '{text}'", e
             )
             return None
@@ -244,37 +242,31 @@ class M11TitlePage:
                 cdisc_phase_code = self._builder.cdisc_code(
                     entry["code"],
                     entry["decode"],
-                    self._cdisc_ct_library,
-                    self._id_manager,
                 )
                 self._errors.info(
                     f"Trial phase '{phase}' decoded as '{entry['code']}', '{entry['decode']}'"
                 )
-                return alias_code(cdisc_phase_code)
+                return self._builder.alias_code(cdisc_phase_code)
         cdisc_phase_code = self._builder.cdisc_code(
             "C48660",
             "[Trial Phase] Not Applicable",
-            self._cdisc_ct_library,
-            self._id_manager,
         )
-        application_logger.warning(f"Trial phase '{phase}' not decoded")
-        return alias_code(cdisc_phase_code)
+        self._errors.warning(f"Trial phase '{phase}' not decoded")
+        return self._builder.alias_code(cdisc_phase_code)
 
     def _title_table(self):
         section = self._raw_docx.target_document.section_by_ordinal(1)
         for table in section.tables():
             title = table_get_row(table, "Full Title")
             if title:
-                application_logger.debug("Found M11 title page table")
+                self._errors.debug("Found M11 title page table")
                 return table
-        application_logger.warning("Cannot locate M11 title page table!")
+        self._errors.warning("Cannot locate M11 title page table!")
         return None
 
     def _preserve_original(self, original_parts, value):
-        print(f"CHECK: {value} si {original_parts}?")
         for part in original_parts:
             for item in re.split(r"[,\s]+", part):
                 if item.upper() == value.upper():
-                    print(f"PRESERVE: {value} as {item}")
                     return item
         return value
