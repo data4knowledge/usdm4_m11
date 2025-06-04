@@ -27,18 +27,18 @@ from usdm4.api.geographic_scope import GeographicScope
 from usdm4.builder.builder import Builder
 from uuid import uuid4
 from usdm4_m11.errors.errors import Errors
-from .m11_title_page import M11TitlePage
-from .m11_inclusion_exclusion import M11InclusionExclusion
-from .m11_estimands import M11IEstimands
-from .m11_amendment import M11IAmendment
-from .m11_sections import M11Sections
-from .m11_utility import *
+from usdm4_m11.import_.m11_title_page import M11TitlePage
+from usdm4_m11.import_.m11_inclusion_exclusion import M11InclusionExclusion
+from usdm4_m11.import_.m11_estimands import M11IEstimands
+from usdm4_m11.import_.m11_amendment import M11IAmendment
+from usdm4_m11.import_.m11_sections import M11Sections
+from usdm4_m11.import_.m11_utility import *
 from usdm4.api.address import Address
-
 
 class M11ToUSDM:
     DIV_OPEN_NS = '<div xmlns="http://www.w3.org/1999/xhtml">'
     DIV_CLOSE = "</div>"
+    SYSTEM_NAME = "USDM4 M11"
 
     def __init__(
         self,
@@ -59,7 +59,7 @@ class M11ToUSDM:
         self._estimands = estimands
         self._amendment = amendment
         self._sections = sections
-        self._system_name = system_name
+        self._system_name = self.SYSTEM_NAME
         self._system_version = system_version
 
     def export(self) -> Wrapper:

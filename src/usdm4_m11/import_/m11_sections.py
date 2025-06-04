@@ -1,7 +1,7 @@
 from usdm4.builder.builder import Builder
 from raw_docx.raw_docx import RawDocx
 from usdm4_m11.errors.errors import Errors
-from .m11_utility import *
+from usdm4_m11.import_.m11_utility import *
 
 
 class M11Sections:

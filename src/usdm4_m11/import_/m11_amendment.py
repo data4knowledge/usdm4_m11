@@ -8,7 +8,7 @@ from raw_docx.raw_table import RawTable
 from raw_docx.raw_section import RawSection
 from raw_docx.raw_paragraph import RawParagraph
 from usdm4_m11.errors.errors import Errors
-from .m11_utility import *
+from usdm4_m11.import_.m11_utility import *
 
 
 class M11IAmendment:

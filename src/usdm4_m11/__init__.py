@@ -1,25 +1,22 @@
 from usdm4.api.wrapper import Wrapper
 from usdm4.builder.builder import Builder
 from raw_docx.raw_docx import RawDocx
-from .m11_title_page import M11TitlePage
-from .m11_inclusion_exclusion import M11InclusionExclusion
-from .m11_sections import M11Sections
-from .m11_to_usdm import M11ToUSDM
-from .m11_styles import M11Styles
-from .m11_estimands import M11IEstimands
-from .m11_amendment import M11IAmendment
-from .m11_miscellaneous import M11Miscellaneous
-from .m11_utility import *
+from usdm4_m11.import_.m11_title_page import M11TitlePage
+from usdm4_m11.import_.m11_inclusion_exclusion import M11InclusionExclusion
+from usdm4_m11.import_.m11_sections import M11Sections
+from usdm4_m11.import_.m11_to_usdm import M11ToUSDM
+from usdm4_m11.import_.m11_styles import M11Styles
+from usdm4_m11.import_.m11_estimands import M11IEstimands
+from usdm4_m11.import_.m11_amendment import M11IAmendment
+from usdm4_m11.import_.m11_miscellaneous import M11Miscellaneous
+from usdm4_m11.import_.m11_utility import *
 from usdm4_m11.errors.errors import Errors
 
-
-class M11Protocol:
+class USDM4M11:
     def __init__(self, filepath):
         self._builder = Builder()
         self._errors = Errors()
         self._builder.create()
-        self._system_name = ""
-        self._system_version = ""
         self._raw_docx = RawDocx(filepath)
         self._title_page = M11TitlePage(self._raw_docx, self._builder)
         self._inclusion_exclusion = M11InclusionExclusion(self._raw_docx, self._builder)
@@ -46,8 +43,6 @@ class M11Protocol:
             self._amendment,
             self._sections,
             self._builder,
-            self._system_name,
-            self._system_version,
         )
         return usdm.export()
 
