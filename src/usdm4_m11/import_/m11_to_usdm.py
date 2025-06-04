@@ -36,7 +36,7 @@ from usdm4_m11.import_.m11_utility import *
 from usdm4.api.address import Address
 from usdm4_m11.__version__ import __package_version__ as system_version
 from usdm4_m11.__version__ import __system_name__ as system_name
-
+from usdm4_m11.__version__ import __model_version__ as usdm_version
 
 class M11ToUSDM:
     DIV_OPEN_NS = '<div xmlns="http://www.w3.org/1999/xhtml">'
