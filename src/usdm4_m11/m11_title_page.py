@@ -1,7 +1,8 @@
 import re
 import dateutil.parser as parser
 from raw_docx.raw_docx import RawDocx
-from usdm_excel.iso_3166 import ISO3166
+
+# from usdm_excel.iso_3166 import ISO3166
 from usdm4.builder.builder import Builder
 from usdm4_m11.errors.errors import Errors
 from .m11_utility import *
@@ -154,9 +155,7 @@ class M11TitlePage:
             name = parts[0].strip()
             self._errors.info(f"Sponsor name set to '{name}'")
         if len(parts) > 1:
-            self._errors.info(
-                f"Processing address {self.sponsor_name_and_address}"
-            )
+            self._errors.info(f"Processing address {self.sponsor_name_and_address}")
             tmp_address = (" ").join([x.strip() for x in parts[1:]])
             # This would use the address service which we don't have
             # results = await self._address_service.parser(tmp_address)
@@ -165,9 +164,7 @@ class M11TitlePage:
                 f"Address service result '{tmp_address}' returned {results}"
             )
             if "error" in results:
-                self._errors.error(
-                    f"Error with address server: {results['error']}"
-                )
+                self._errors.error(f"Error with address server: {results['error']}")
             else:
                 for result in results:
                     if result["label"] == "country":

@@ -105,9 +105,7 @@ class M11IAmendment:
                     "The table below describes the current amendment", item.text
                 ):
                     table = section.next_table(index + 1)
-                    self._errors.info(
-                        f"Amendment table {'' if table else 'not '}found"
-                    )
+                    self._errors.info(f"Amendment table {'' if table else 'not '}found")
                     return table, index
         return None, -1
 
@@ -119,9 +117,7 @@ class M11IAmendment:
                     "Overview of Changes in the Current Amendment", item.text
                 ):
                     table = section.next_table(index + 1)
-                    self._errors.info(
-                        f"Changes table {'' if table else 'not '}found"
-                    )
+                    self._errors.info(f"Changes table {'' if table else 'not '}found")
                     return table
         return None
 

@@ -41,9 +41,7 @@ class M11Styles:
                 for item in items:
                     item.add_class(header[1])
         else:
-            self._errors.error(
-                "Failed to find first  (header) section in M11 document"
-            )
+            self._errors.error("Failed to find first  (header) section in M11 document")
 
     def _decode_trial_design_summary(self):
         section = self._raw_docx.target_document.section_by_number("1.1.2")

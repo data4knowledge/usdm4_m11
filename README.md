@@ -31,15 +31,6 @@ await protocol.process()
 usdm_data = protocol.to_usdm()
 ```
 
-## Dependencies
-
-- usdm4
-- usdm_excel
-- usdm_info
-- d4k_ms_base
-- raw_docx
-- python-dateutil
-
 ## License
 
 MIT

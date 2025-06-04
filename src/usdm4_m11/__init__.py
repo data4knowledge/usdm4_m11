@@ -12,6 +12,7 @@ from .m11_miscellaneous import M11Miscellaneous
 from .m11_utility import *
 from usdm4_m11.errors.errors import Errors
 
+
 class M11Protocol:
     def __init__(self, filepath):
         self._builder = Builder()

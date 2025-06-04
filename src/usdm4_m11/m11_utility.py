@@ -30,7 +30,6 @@ def table_get_row_html(table: RawTable, key: str) -> str:
     return ""
 
 
-
 # def iso3166_decode(decode: str, iso_library: ISO3166, id_manager: IdManager) -> Code:
 #     for key in ["name", "alpha-2", "alpha-3"]:
 #         entry = next(

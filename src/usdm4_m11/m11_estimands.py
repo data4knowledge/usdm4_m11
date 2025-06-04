@@ -71,7 +71,5 @@ class M11IEstimands:
                     else:
                         sections = False
         else:
-            self._errors.error(
-                "Invalid M11 document. Section 3.1 is not present."
-            )
+            self._errors.error("Invalid M11 document. Section 3.1 is not present.")
         return objectives
