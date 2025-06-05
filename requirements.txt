@@ -1,4 +1,7 @@
-usdm4
+usdm4>=0.7.0
 raw_docx
 python-dateutil
-
+pytest==8.2.2
+pytest-cov==4.1.0
+pytest-mock==3.14.0
+python-dotenv==1.0.1 
