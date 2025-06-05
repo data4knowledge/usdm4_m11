@@ -1,6 +1,7 @@
 import re
 import pytest
-from tests.files.files import *
+import json
+from tests.files.files import read_json, write_json
 from src.usdm4_m11 import USDM4M11
 
 WRITE_FILE = False

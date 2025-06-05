@@ -1,3 +1,4 @@
+import pathlib
 from usdm4.api.wrapper import Wrapper
 from usdm4.builder.builder import Builder
 from raw_docx.raw_docx import RawDocx
@@ -11,11 +12,12 @@ from usdm4_m11.import_.m11_amendment import M11IAmendment
 from usdm4_m11.import_.m11_miscellaneous import M11Miscellaneous
 from usdm4_m11.import_.m11_utility import *
 from usdm4_m11.errors.errors import Errors
-
+from usdm4 import USDM4
 
 class USDM4M11:
     def __init__(self, filepath):
-        self._builder = Builder()
+        usdm4 = USDM4()
+        self._builder = usdm4.builder()
         self._errors = Errors()
         self._builder.create()
         self._raw_docx = RawDocx(filepath)

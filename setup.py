@@ -27,6 +27,6 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    tests_require=["pytest", "pytest-cov", "pytest-mock", "python-dotenv"],
+    tests_require=["anyio", "pytest", "pytest-cov", "pytest-mock", "python-dotenv"],
     python_requires=">=3.6",
 )
