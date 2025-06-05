@@ -19,7 +19,6 @@ class USDM4M11:
         usdm4 = USDM4()
         self._builder = usdm4.builder()
         self._errors = Errors()
-        self._builder.create()
         self._raw_docx = RawDocx(filepath)
         self._title_page = M11TitlePage(self._raw_docx, self._builder)
         self._inclusion_exclusion = M11InclusionExclusion(self._raw_docx, self._builder)
