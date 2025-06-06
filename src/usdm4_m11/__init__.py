@@ -41,12 +41,13 @@ class USDM4M11:
 
     def to_usdm(self) -> Wrapper:
         usdm = M11ToUSDM(
+            self._builder,
+            self._errors,
             self._title_page,
             self._inclusion_exclusion,
             self._estimands,
             self._amendment,
             self._sections,
-            self._builder,
         )
         return usdm.export()
 
