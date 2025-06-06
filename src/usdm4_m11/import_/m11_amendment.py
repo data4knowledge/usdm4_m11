@@ -19,7 +19,7 @@ class M11IAmendment:
         self._errors = errors
         self._raw_docx = raw_docx
         other_code = self._builder.cdisc_code("C17649", "Other")
-        self.enrollment = self._build_enrollment(0, "")
+        self.enrollment = self._build_enrollment(0, "", 1)
         self.amendment_details = ""
         self.primary_reason = {"code": other_code, "other_reason": self.OTHER_REASON}
         self.secondary_reason = {"code": other_code, "other_reason": self.OTHER_REASON}
@@ -173,22 +173,21 @@ class M11IAmendment:
         number = re.findall("[0-9]+", text)
         value = int(number[0]) if number else 0
         unit = "%" if "%" in text else ""
-        self.enrollment = self._build_enrollment(value, unit)
+        self.enrollment = self._build_enrollment(value, unit, 2)
 
-    def _build_enrollment(self, value, unit):
+    def _build_enrollment(self, value, unit, index):
         global_code = self._builder.cdisc_code("C68846", "Global")
         percent_code = self._builder.cdisc_code("C25613", "Percentage")
         unit_code = percent_code if unit == "%" else None
         unit_alias = self._builder.alias_code(unit_code) if unit_code else None
         quantity = self._builder.create(Quantity, {"value": value, "unit": unit_alias})
-        print(f"QUANTITY: {quantity}")
         params = {
             "type": global_code,
             "code": None,
         }
         geo_scope = self._builder.create(GeographicScope, params)
         params = {
-            "name": "GLOBAL_ENROLLMENT",
+            "name": f"ENROLLMENT {index}",
             "forGeographicScope": geo_scope,
             "quantity": quantity,
         }

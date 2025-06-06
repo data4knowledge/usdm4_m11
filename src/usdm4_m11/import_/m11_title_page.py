@@ -19,6 +19,7 @@ class M11TitlePage:
         self.sponsor_protocol_identifier = None
         self.original_protocol = None
         self.version_number = None
+        self.version_date = None
         self.amendment_identifier = None
         self.amendment_scope = None
         self.amendment_details = None

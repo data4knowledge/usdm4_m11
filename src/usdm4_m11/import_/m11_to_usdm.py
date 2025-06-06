@@ -1,3 +1,4 @@
+from usdm4.api.api_base_model import ApiBaseModelWithIdOnly
 from usdm4.api.wrapper import Wrapper
 from usdm4.api.study import Study
 from usdm4.api.study_design import InterventionalStudyDesign
@@ -23,19 +24,19 @@ from usdm4.api.study_intervention import StudyIntervention
 from usdm4.api.estimand import Estimand
 from usdm4.api.governance_date import GovernanceDate
 from usdm4.api.geographic_scope import GeographicScope
-
 from usdm4.builder.builder import Builder
 from uuid import uuid4
 from simple_error_log.errors import Errors
+from simple_error_log.error_location import KlassMethodLocation
 from usdm4_m11.import_.m11_title_page import M11TitlePage
 from usdm4_m11.import_.m11_inclusion_exclusion import M11InclusionExclusion
 from usdm4_m11.import_.m11_estimands import M11IEstimands
 from usdm4_m11.import_.m11_amendment import M11IAmendment
 from usdm4_m11.import_.m11_sections import M11Sections
 from usdm4.api.address import Address
-from usdm4_m11.__version__ import __package_version__ as system_version
-from usdm4_m11.__version__ import __system_name__ as system_name
-from usdm4_m11.__version__ import __model_version__ as usdm_version
+from usdm4_m11.__info__ import __package_version__ as system_version
+from usdm4_m11.__info__ import __system_name__ as system_name
+from usdm4_m11.__info__ import __model_version__ as usdm_version
 
 
 class M11ToUSDM:
@@ -69,7 +70,8 @@ class M11ToUSDM:
             doc_version = self._document_version(study)
             study_version = self._study_version(study)
             _ = self._section_to_narrative(None, 0, 1, doc_version, study_version)
-            self._double_link(doc_version.contents, "previousId", "nextId")
+            self._builder.double_link(doc_version.contents, "previousId", "nextId")
+            self._errors.merge(self._builder.errors)
             return Wrapper(
                 study=study,
                 usdmVersion=usdm_version,
@@ -81,10 +83,11 @@ class M11ToUSDM:
                 "Exception raised parsing M11 content. See logs for more details", e
             )
             return None
-
+    
     def _section_to_narrative(
         self, parent, index, level, doc_version, study_version
     ) -> int:
+        error_location = KlassMethodLocation("M11ToUSDM", "_self_to_narrative")
         process = True
         previous = None
         local_index = index
@@ -100,7 +103,6 @@ class M11ToUSDM:
                     NarrativeContentItem,
                     {"name": f"NCI-{sn}", "text": nc_text},
                 )
-                # print(f"NCI: {nci}")
                 nc = self._builder.create(
                     NarrativeContent,
                     {
@@ -136,46 +138,47 @@ class M11ToUSDM:
         return local_index
 
     def _study(self):
+        dates = []
+        titles = []
+
+        # Sponsor Date
         sponsor_approval_date_code = self._builder.cdisc_code(
             "C132352", "Sponsor Approval Date"
         )
+        global_code = self._builder.cdisc_code("C68846", "Global")
+        global_scope = self._builder.create(GeographicScope, {"type": global_code})
+        approval_date = self._builder.create(
+            GovernanceDate,
+            {
+                "name": "Approval Date",
+                "type": sponsor_approval_date_code,
+                "dateValue": self._title_page.sponsor_approval_date,
+                "geographicScopes": [global_scope],
+            },
+        )
+        if approval_date:
+            dates.append(approval_date)
+        
+        # Protocol Date
         protocol_date_code = self._builder.cdisc_code(
             "C99903x1",
             "Protocol Effective Date",
         )
         global_code = self._builder.cdisc_code("C68846", "Global")
         global_scope = self._builder.create(GeographicScope, {"type": global_code})
-        dates = []
-        try:
-            approval_date = self._builder.create(
-                GovernanceDate,
-                {
-                    "name": "Approval Date",
-                    "type": sponsor_approval_date_code,
-                    "dateValue": self._title_page.sponsor_approval_date,
-                    "geographicScopes": [global_scope],
-                },
-            )
-            dates.append(approval_date)
-        except Exception:
-            self._errors.info(
-                f"No document approval date set, source = '{self._title_page.sponsor_approval_date}'"
-            )
-        try:
-            protocol_date = self._builder.create(
-                GovernanceDate,
-                {
-                    "name": "Protocol Date",
-                    "type": protocol_date_code,
-                    "dateValue": self._title_page.version_date,
-                    "geographicScopes": [global_scope],
-                },
-            )
+        protocol_date = self._builder.create(
+            GovernanceDate,
+            {
+                "name": "Protocol Date",
+                "type": protocol_date_code,
+                "dateValue": self._title_page.version_date,
+                "geographicScopes": [global_scope],
+            },
+        )
+        if protocol_date:
             dates.append(protocol_date)
-        except Exception:
-            self._errors.info(
-                f"No document version date set, source = '{self._title_page.version_date}'"
-            )
+    
+        # Titles
         sponsor_title_code = self._builder.cdisc_code(
             "C99905x2", "Official Study Title"
         )
@@ -183,42 +186,32 @@ class M11ToUSDM:
             "C99905x1", "Brief Study Title"
         )
         acronym_code = self._builder.cdisc_code("C94108", "Study Acronym")
+        
+        # Status & Intervention Model
         protocol_status_code = self._builder.cdisc_code("C85255", "Draft")
         intervention_model_code = self._builder.cdisc_code("C82639", "Parallel Study")
+        
         sponsor_code = self._builder.cdisc_code("C70793", "Clinical Study Sponsor")
-        titles = []
-        try:
-            title = self._builder.create(
-                StudyTitle,
-                {"text": self._title_page.full_title, "type": sponsor_title_code},
-            )
+        title = self._builder.create(
+            StudyTitle,
+            {"text": self._title_page.full_title, "type": sponsor_title_code},
+        )
+        if title:
             titles.append(title)
-        except Exception:
-            self._errors.info(
-                f"No study title set, source = '{self._title_page.full_title}'"
-            )
-        try:
-            title = self._builder.create(
-                StudyTitle, {"text": self._title_page.acronym, "type": acronym_code}
-            )
+        title = self._builder.create(
+            StudyTitle, {"text": self._title_page.acronym, "type": acronym_code}
+        )
+        if title:
             titles.append(title)
-        except Exception:
-            self._errors.info(
-                f"No study acronym set, source = '{self._title_page.acronym}'"
-            )
-        try:
-            title = self._builder.create(
-                StudyTitle,
-                {
-                    "text": self._title_page.short_title,
-                    "type": sponsor_short_title_code,
-                },
-            )
+        title = self._builder.create(
+            StudyTitle,
+            {
+                "text": self._title_page.short_title,
+                "type": sponsor_short_title_code,
+            },
+        )
+        if title:
             titles.append(title)
-        except Exception:
-            self._errors.info(
-                f"No study short title set, source = '{self._title_page.short_title}'"
-            )
         protocol_document_version = self._builder.create(
             StudyDefinitionDocumentVersion,
             {
@@ -264,7 +257,6 @@ class M11ToUSDM:
         sponsor_address = self._title_page.sponsor_address
         address = self._builder.create(Address, sponsor_address)
         address.set_text()
-        print(f"ADDRESS: {address}")
         organization = self._builder.create(
             Organization,
             {
@@ -309,7 +301,6 @@ class M11ToUSDM:
         return study
 
     def _objectives(self):
-        # print(f"OBJECTIVES")
         objs = []
         ests = []
         treatments = []
@@ -318,13 +309,12 @@ class M11ToUSDM:
         primary_ep = self._builder.cdisc_code("C94496", "Primary Endpoint")
 
         int_role = self._builder.cdisc_code(
-            "C41161", "Experimental Intervention", self._cdisc_ct_library
+            "C41161", "Experimental Intervention"
         )
         int_type = self._builder.cdisc_code("C1909", "Pharmacologic Substance")
         int_designation = self._builder.cdisc_code("C99909x1", "IMP")
 
         for index, objective in enumerate(self._estimands.objectives):
-            # print(f"NEXT OBJECTIVE")
             params = {
                 "name": f"Endpoint {index + 1}",
                 "text": objective["endpoint"],
@@ -454,15 +444,15 @@ class M11ToUSDM:
     def _study_version(self, study: Study) -> StudyDefinitionDocumentVersion:
         return study.versions[0]
 
-    def _double_link(self, items, prev, next):
-        for idx, item in enumerate(items):
-            if idx == 0:
-                setattr(item, prev, None)
-            else:
-                the_id = getattr(items[idx - 1], "id")
-                setattr(item, prev, the_id)
-            if idx == len(items) - 1:
-                setattr(item, next, None)
-            else:
-                the_id = getattr(items[idx + 1], "id")
-                setattr(item, next, the_id)
+    # def _double_link(self, items, prev, next):
+    #     for idx, item in enumerate(items):
+    #         if idx == 0:
+    #             setattr(item, prev, None)
+    #         else:
+    #             the_id = getattr(items[idx - 1], "id")
+    #             setattr(item, prev, the_id)
+    #         if idx == len(items) - 1:
+    #             setattr(item, next, None)
+    #         else:
+    #             the_id = getattr(items[idx + 1], "id")
+    #             setattr(item, next, the_id)

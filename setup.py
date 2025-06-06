@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 package_info = {}
-with open("src/usdm4_m11/__version__.py") as fp:
+with open("src/usdm4_m11/__info__.py") as fp:
     exec(fp.read(), package_info)
 
 setup(
