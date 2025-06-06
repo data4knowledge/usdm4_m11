@@ -24,6 +24,7 @@ from usdm4.api.study_intervention import StudyIntervention
 from usdm4.api.estimand import Estimand
 from usdm4.api.governance_date import GovernanceDate
 from usdm4.api.geographic_scope import GeographicScope
+from usdm4.api.address import Address
 from usdm4.builder.builder import Builder
 from uuid import uuid4
 from simple_error_log.errors import Errors
@@ -33,7 +34,6 @@ from usdm4_m11.import_.m11_inclusion_exclusion import M11InclusionExclusion
 from usdm4_m11.import_.m11_estimands import M11IEstimands
 from usdm4_m11.import_.m11_amendment import M11IAmendment
 from usdm4_m11.import_.m11_sections import M11Sections
-from usdm4.api.address import Address
 from usdm4_m11.__info__ import __package_version__ as system_version
 from usdm4_m11.__info__ import __system_name__ as system_name
 from usdm4_m11.__info__ import __model_version__ as usdm_version
@@ -64,11 +64,11 @@ class M11ToUSDM:
         self._system_name = system_name
         self._system_version = system_version
 
-    def export(self) -> Wrapper:
+    def export(self) -> str | None:
         try:
-            study = self._study()
+            study: Study = self._study()
             doc_version = self._document_version(study)
-            study_version = self._study_version(study)
+            study_version = study.first_version()
             _ = self._section_to_narrative(None, 0, 1, doc_version, study_version)
             self._builder.double_link(doc_version.contents, "previousId", "nextId")
             self._errors.merge(self._builder.errors)
@@ -137,7 +137,7 @@ class M11ToUSDM:
                 process = False
         return local_index
 
-    def _study(self):
+    def _study(self) -> Study:
         dates = []
         titles = []
 
@@ -256,7 +256,8 @@ class M11ToUSDM:
         )
         sponsor_address = self._title_page.sponsor_address
         address = self._builder.create(Address, sponsor_address)
-        address.set_text()
+        if address:
+            address.set_text()
         organization = self._builder.create(
             Organization,
             {
@@ -441,8 +442,8 @@ class M11ToUSDM:
     def _document_version(self, study: Study) -> StudyDefinitionDocumentVersion:
         return study.documentedBy[0].versions[0]
 
-    def _study_version(self, study: Study) -> StudyDefinitionDocumentVersion:
-        return study.versions[0]
+    # def _study_version(self, study: Study) -> StudyDefinitionDocumentVersion:
+    #     return study.versions[0]
 
     # def _double_link(self, items, prev, next):
     #     for idx, item in enumerate(items):
