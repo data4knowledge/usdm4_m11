@@ -1,11 +1,9 @@
 import re
 import dateutil.parser as parser
 from raw_docx.raw_docx import RawDocx
-
-# from usdm_excel.iso_3166 import ISO3166
 from usdm4.builder.builder import Builder
-from usdm4_m11.errors.errors import Errors
-from usdm4_m11.import_.m11_utility import *
+from usdm4_m11.import_.m11_utility import table_get_row
+from simple_error_log.errors import Errors
 
 
 class M11TitlePage:
@@ -13,7 +11,6 @@ class M11TitlePage:
         self._builder = builder
         self._errors = errors
         self._raw_docx = raw_docx
-        self._iso = ISO3166(self._globals)
         self._address_service = None  # Will need to be addressed
         self._sections = []
         self.sponosr_confidentiality = None
@@ -132,7 +129,7 @@ class M11TitlePage:
             # Try to extract country from the last line
             if len(parts) > 2:
                 last_line = parts[-1].strip()
-                country_code = iso3166_decode(last_line, self._iso)
+                country_code = self._builder.iso3166_code(last_line)
                 if country_code:
                     params["country"] = country_code
 
@@ -169,9 +166,7 @@ class M11TitlePage:
                 for result in results:
                     if result["label"] == "country":
                         value = self._preserve_original(parts[1:], result["value"])
-                        params["country"] = iso3166_decode(
-                            value, self._iso, self._id_manager
-                        )
+                        params["country"] = self._builder.iso3166_code(value)
                     elif result["label"] == "postcode":
                         params["postalCode"] = self._preserve_original(
                             parts[1:], result["value"]

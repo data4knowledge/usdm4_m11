@@ -26,17 +26,17 @@ from usdm4.api.geographic_scope import GeographicScope
 
 from usdm4.builder.builder import Builder
 from uuid import uuid4
-from usdm4_m11.errors.errors import Errors
+from simple_error_log.errors import Errors
 from usdm4_m11.import_.m11_title_page import M11TitlePage
 from usdm4_m11.import_.m11_inclusion_exclusion import M11InclusionExclusion
 from usdm4_m11.import_.m11_estimands import M11IEstimands
 from usdm4_m11.import_.m11_amendment import M11IAmendment
 from usdm4_m11.import_.m11_sections import M11Sections
-from usdm4_m11.import_.m11_utility import *
 from usdm4.api.address import Address
 from usdm4_m11.__version__ import __package_version__ as system_version
 from usdm4_m11.__version__ import __system_name__ as system_name
 from usdm4_m11.__version__ import __model_version__ as usdm_version
+
 
 class M11ToUSDM:
     DIV_OPEN_NS = '<div xmlns="http://www.w3.org/1999/xhtml">'
@@ -68,9 +68,7 @@ class M11ToUSDM:
             study = self._study()
             doc_version = self._document_version(study)
             study_version = self._study_version(study)
-            local_index = self._section_to_narrative(
-                None, 0, 1, doc_version, study_version
-            )
+            _ = self._section_to_narrative(None, 0, 1, doc_version, study_version)
             self._double_link(doc_version.contents, "previousId", "nextId")
             return Wrapper(
                 study=study,
@@ -90,7 +88,6 @@ class M11ToUSDM:
         process = True
         previous = None
         local_index = index
-        loop = 0
         while process:
             section = self._sections.sections[local_index]
             if section.level == level:
@@ -165,7 +162,7 @@ class M11ToUSDM:
                 self._id_manager,
             )
             dates.append(approval_date)
-        except:
+        except Exception:
             self._errors.info(
                 f"No document approval date set, source = '{self._title_page.sponsor_approval_date}'"
             )
@@ -181,7 +178,7 @@ class M11ToUSDM:
                 self._id_manager,
             )
             dates.append(protocol_date)
-        except:
+        except Exception:
             self._errors.info(
                 f"No document version date set, source = '{self._title_page.version_date}'"
             )
@@ -203,7 +200,7 @@ class M11ToUSDM:
                 self._id_manager,
             )
             titles.append(title)
-        except:
+        except Exception:
             self._errors.info(
                 f"No study title set, source = '{self._title_page.full_title}'"
             )
@@ -214,7 +211,7 @@ class M11ToUSDM:
                 self._id_manager,
             )
             titles.append(title)
-        except:
+        except Exception:
             self._errors.info(
                 f"No study acronym set, source = '{self._title_page.acronym}'"
             )
@@ -228,7 +225,7 @@ class M11ToUSDM:
                 self._id_manager,
             )
             titles.append(title)
-        except:
+        except Exception:
             self._errors.info(
                 f"No study short title set, source = '{self._title_page.short_title}'"
             )
@@ -240,7 +237,7 @@ class M11ToUSDM:
             },
             self._id_manager,
         )
-        language = language_code("en", "English")
+        language = self._builder.iso639_code("en")
         doc_type = self._builder.cdisc_code("C70817", "Protocol")
         protocol_document = self._builder.create(
             StudyDefinitionDocument,
