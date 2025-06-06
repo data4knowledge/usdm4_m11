@@ -99,7 +99,6 @@ class M11ToUSDM:
                 nci = self._builder.create(
                     NarrativeContentItem,
                     {"name": f"NCI-{sn}", "text": nc_text},
-                    self._id_manager,
                 )
                 # print(f"NCI: {nci}")
                 nc = self._builder.create(
@@ -115,7 +114,6 @@ class M11ToUSDM:
                         "previousId": None,
                         "nextId": None,
                     },
-                    self._id_manager,
                 )
                 doc_version.contents.append(nc)
                 study_version.narrativeContentItems.append(nci)
@@ -146,9 +144,7 @@ class M11ToUSDM:
             "Protocol Effective Date",
         )
         global_code = self._builder.cdisc_code("C68846", "Global")
-        global_scope = self._builder.create(
-            GeographicScope, {"type": global_code}, self._id_manager
-        )
+        global_scope = self._builder.create(GeographicScope, {"type": global_code})
         dates = []
         try:
             approval_date = self._builder.create(
@@ -159,7 +155,6 @@ class M11ToUSDM:
                     "dateValue": self._title_page.sponsor_approval_date,
                     "geographicScopes": [global_scope],
                 },
-                self._id_manager,
             )
             dates.append(approval_date)
         except Exception:
@@ -175,7 +170,6 @@ class M11ToUSDM:
                     "dateValue": self._title_page.version_date,
                     "geographicScopes": [global_scope],
                 },
-                self._id_manager,
             )
             dates.append(protocol_date)
         except Exception:
@@ -197,7 +191,6 @@ class M11ToUSDM:
             title = self._builder.create(
                 StudyTitle,
                 {"text": self._title_page.full_title, "type": sponsor_title_code},
-                self._id_manager,
             )
             titles.append(title)
         except Exception:
@@ -206,9 +199,7 @@ class M11ToUSDM:
             )
         try:
             title = self._builder.create(
-                StudyTitle,
-                {"text": self._title_page.acronym, "type": acronym_code},
-                self._id_manager,
+                StudyTitle, {"text": self._title_page.acronym, "type": acronym_code}
             )
             titles.append(title)
         except Exception:
@@ -222,7 +213,6 @@ class M11ToUSDM:
                     "text": self._title_page.short_title,
                     "type": sponsor_short_title_code,
                 },
-                self._id_manager,
             )
             titles.append(title)
         except Exception:
@@ -235,7 +225,6 @@ class M11ToUSDM:
                 "version": self._title_page.version_number,
                 "status": protocol_status_code,
             },
-            self._id_manager,
         )
         language = self._builder.iso639_code("en")
         doc_type = self._builder.cdisc_code("C70817", "Protocol")
@@ -250,7 +239,6 @@ class M11ToUSDM:
                 "templateName": "M11",
                 "versions": [protocol_document_version],
             },
-            self._id_manager,
         )
         population, ec_items = self._population()
         objectives, estimands, interventions, analysis_populations = self._objectives()
@@ -272,7 +260,6 @@ class M11ToUSDM:
                 "analysisPopulations": analysis_populations,
                 "studyPhase": self._title_page.trial_phase,
             },
-            self._id_manager,
         )
         sponsor_address = self._title_page.sponsor_address
         address = self._builder.create(Address, sponsor_address)
@@ -287,7 +274,6 @@ class M11ToUSDM:
                 "identifierScheme": "DUNS",
                 "legalAddress": address,
             },
-            self._id_manager,
         )
         identifier = self._builder.create(
             StudyIdentifier,
@@ -295,7 +281,6 @@ class M11ToUSDM:
                 "text": self._title_page.sponsor_protocol_identifier,
                 "scopeId": organization.id,
             },
-            self._id_manager,
         )
         params = {
             "versionIdentifier": self._title_page.version_number,
@@ -320,7 +305,6 @@ class M11ToUSDM:
                 "versions": [study_version],
                 "documentedBy": [protocol_document],
             },
-            self._id_manager,
         )
         return study
 
@@ -334,10 +318,7 @@ class M11ToUSDM:
         primary_ep = self._builder.cdisc_code("C94496", "Primary Endpoint")
 
         int_role = self._builder.cdisc_code(
-            "C41161",
-            "Experimental Intervention",
-            self._cdisc_ct_library,
-            self._id_manager,
+            "C41161", "Experimental Intervention", self._cdisc_ct_library
         )
         int_type = self._builder.cdisc_code("C1909", "Pharmacologic Substance")
         int_designation = self._builder.cdisc_code("C99909x1", "IMP")
@@ -444,16 +425,12 @@ class M11ToUSDM:
             "includesHealthySubjects": True,
             "criteria": results,
         }
-        return self._builder.create(
-            StudyDesignPopulation, params, self._id_manager
-        ), ec_results
+        return self._builder.create(StudyDesignPopulation, params), ec_results
 
     def _get_amendments(self):
         reason = []
         global_code = self._builder.cdisc_code("C68846", "Global")
-        global_scope = self._builder.create(
-            GeographicScope, {"type": global_code}, self._id_manager
-        )
+        global_scope = self._builder.create(GeographicScope, {"type": global_code})
         for item in [self._amendment.primary_reason, self._amendment.secondary_reason]:
             params = {"code": item["code"], "otherReason": item["other_reason"]}
             reason.append(self._builder.create(StudyAmendmentReason, params))

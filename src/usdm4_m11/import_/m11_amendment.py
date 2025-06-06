@@ -158,10 +158,7 @@ class M11IAmendment:
                             f"Amednment reason '{reason_text}' decoded as '{reason['code']}', '{reason['decode']}'"
                         )
                         code = self._builder.cdisc_code(
-                            reason["code"],
-                            reason["decode"],
-                            self._cdisc_ct_library,
-                            self._id_manager,
+                            reason["code"], reason["decode"]
                         )
                         return {"code": code, "other_reason": ""}
             self._errors.warning(f"Unable to decode amendment reason '{reason}'")
@@ -183,9 +180,7 @@ class M11IAmendment:
         percent_code = self._builder.cdisc_code("C25613", "Percentage")
         unit_code = percent_code if unit == "%" else None
         unit_alias = self._builder.alias_code(unit_code) if unit_code else None
-        quantity = self._builder.create(
-            Quantity, {"value": value, "unit": unit_alias}, self._id_manager
-        )
+        quantity = self._builder.create(Quantity, {"value": value, "unit": unit_alias})
         print(f"QUANTITY: {quantity}")
         params = {
             "type": global_code,
