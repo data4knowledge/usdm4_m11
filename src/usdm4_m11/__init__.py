@@ -1,60 +1,39 @@
+from usdm4_m11.import_.m11_import import M11Import
 from usdm4.api.wrapper import Wrapper
-from raw_docx.raw_docx import RawDocx
-from usdm4_m11.import_.m11_title_page import M11TitlePage
-from usdm4_m11.import_.m11_inclusion_exclusion import M11InclusionExclusion
-from usdm4_m11.import_.m11_sections import M11Sections
-from usdm4_m11.import_.m11_to_usdm import M11ToUSDM
-from usdm4_m11.import_.m11_styles import M11Styles
-from usdm4_m11.import_.m11_estimands import M11IEstimands
-from usdm4_m11.import_.m11_amendment import M11IAmendment
-from usdm4_m11.import_.m11_miscellaneous import M11Miscellaneous
 from simple_error_log.errors import Errors
-from usdm4 import USDM4
+from simple_error_log.error_location import KlassMethodLocation
 
 
 class USDM4M11:
-    def __init__(self, filepath):
-        usdm4 = USDM4()
-        self._builder = usdm4.builder()
+    MODULE = "src.usdm4_m11.__init__.USDM4M11"
+
+    def __init__(self):
         self._errors = Errors()
-        self._raw_docx = RawDocx(filepath)
-        self._errors.merge(self._raw_docx.errors)
-        self._title_page = M11TitlePage(self._raw_docx, self._builder, self._errors)
-        self._inclusion_exclusion = M11InclusionExclusion(
-            self._raw_docx, self._builder, self._errors
-        )
-        self._estimands = M11IEstimands(self._raw_docx, self._builder, self._errors)
-        self._amendment = M11IAmendment(self._raw_docx, self._builder, self._errors)
-        self._miscellaneous = M11Miscellaneous(
-            self._raw_docx, self._builder, self._errors
-        )
-        self._sections = M11Sections(self._raw_docx, self._builder, self._errors)
-        self._styles = M11Styles(self._raw_docx, self._builder, self._errors)
+        self._m11_import = None
 
-    async def process(self):
-        self._styles.process()
-        await self._title_page.process()
-        self._miscellaneous.process()
-        self._amendment.process()
-        self._inclusion_exclusion.process()
-        self._estimands.process()
-        self._sections.process()
+    def from_docx(self, filepath: str) -> Wrapper:
+        try:
+            self._m11_import = M11Import(filepath, self._errors)
+            self._m11_import.process()
+            wrapper = self._m11_import.to_usdm()
+            return wrapper
+        except Exception as e:
+            location = KlassMethodLocation(self.MODULE, "from_docx")
+            self._errors.exception(
+                f"Exception raised converting M11 '-docx' file '{filepath}'",
+                e,
+                location,
+            )
 
-    def to_usdm(self) -> Wrapper:
-        usdm = M11ToUSDM(
-            self._builder,
-            self._errors,
-            self._title_page,
-            self._inclusion_exclusion,
-            self._estimands,
-            self._amendment,
-            self._sections,
-        )
-        return usdm.export()
+    def extra(self) -> dict:
+        try:
+            return self._m11_import.extra()
+        except Exception as e:
+            location = KlassMethodLocation(self.MODULE, "extra")
+            self._errors.exception(
+                "Exception raised obraing extra information", e, location
+            )
 
-    def extra(self):
-        return {
-            "title_page": self._title_page.extra(),
-            "miscellaneous": self._miscellaneous.extra(),
-            "amendment": self._amendment.extra(),
-        }
+    @property
+    def errors(self):
+        return self._errors

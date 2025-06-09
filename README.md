@@ -31,6 +31,9 @@ await protocol.process()
 usdm_data = protocol.to_usdm()
 ```
 
-## License
+# Build
 
-MIT
+Build as a normal package
+
+- Build with `python3 -m build --sdist --wheel`
+- Upload to pypi.org using `twine upload dist/*`

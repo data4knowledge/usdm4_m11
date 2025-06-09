@@ -1,4 +1,3 @@
-from usdm4.api.api_base_model import ApiBaseModelWithIdOnly
 from usdm4.api.wrapper import Wrapper
 from usdm4.api.study import Study
 from usdm4.api.study_design import InterventionalStudyDesign
@@ -83,7 +82,7 @@ class M11ToUSDM:
                 "Exception raised parsing M11 content. See logs for more details", e
             )
             return None
-    
+
     def _section_to_narrative(
         self, parent, index, level, doc_version, study_version
     ) -> int:
@@ -129,7 +128,7 @@ class M11ToUSDM:
                         previous, local_index, level + 1, doc_version, study_version
                     )
                 else:
-                    self._errors.error("No previous set processing sections")
+                    self._errors.error("No previous set processing sections", error_location)
                     local_index += 1
             elif section.level < level:
                 return local_index
@@ -158,7 +157,7 @@ class M11ToUSDM:
         )
         if approval_date:
             dates.append(approval_date)
-        
+
         # Protocol Date
         protocol_date_code = self._builder.cdisc_code(
             "C99903x1",
@@ -177,7 +176,7 @@ class M11ToUSDM:
         )
         if protocol_date:
             dates.append(protocol_date)
-    
+
         # Titles
         sponsor_title_code = self._builder.cdisc_code(
             "C99905x2", "Official Study Title"
@@ -186,11 +185,11 @@ class M11ToUSDM:
             "C99905x1", "Brief Study Title"
         )
         acronym_code = self._builder.cdisc_code("C94108", "Study Acronym")
-        
+
         # Status & Intervention Model
         protocol_status_code = self._builder.cdisc_code("C85255", "Draft")
         intervention_model_code = self._builder.cdisc_code("C82639", "Parallel Study")
-        
+
         sponsor_code = self._builder.cdisc_code("C70793", "Clinical Study Sponsor")
         title = self._builder.create(
             StudyTitle,
@@ -309,9 +308,7 @@ class M11ToUSDM:
         primary_o = self._builder.cdisc_code("C85826", "Primary Objective")
         primary_ep = self._builder.cdisc_code("C94496", "Primary Endpoint")
 
-        int_role = self._builder.cdisc_code(
-            "C41161", "Experimental Intervention"
-        )
+        int_role = self._builder.cdisc_code("C41161", "Experimental Intervention")
         int_type = self._builder.cdisc_code("C1909", "Pharmacologic Substance")
         int_designation = self._builder.cdisc_code("C99909x1", "IMP")
 

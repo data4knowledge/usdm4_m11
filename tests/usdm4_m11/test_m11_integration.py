@@ -2,7 +2,8 @@ import re
 import pytest
 import json
 from tests.files.files import read_json, write_json
-from src.usdm4_m11 import USDM4M11
+from src.usdm4_m11.import_.m11_import import M11Import
+from simple_error_log.errors import Errors
 
 WRITE_FILE = False
 
@@ -13,9 +14,10 @@ def anyio_backend():
 
 
 async def _run_test(dir, name, save=False):
+    errors = Errors()
     filename = f"{name}.docx"
     filepath = _full_path(dir, filename)
-    m11 = USDM4M11(filepath)
+    m11 = M11Import(filepath, errors)
     await m11.process()
     result = m11.to_usdm()
     result = replace_uuid(result)
