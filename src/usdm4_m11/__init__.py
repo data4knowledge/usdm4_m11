@@ -11,12 +11,11 @@ class USDM4M11:
         self._errors = Errors()
         self._m11_import = None
 
-    def from_docx(self, filepath: str) -> Wrapper:
+    async def from_docx(self, filepath: str) -> str | None:
         try:
             self._m11_import = M11Import(filepath, self._errors)
-            self._m11_import.process()
-            wrapper = self._m11_import.to_usdm()
-            return wrapper
+            await self._m11_import.process()
+            return self._m11_import.to_usdm()
         except Exception as e:
             location = KlassMethodLocation(self.MODULE, "from_docx")
             self._errors.exception(
@@ -24,15 +23,20 @@ class USDM4M11:
                 e,
                 location,
             )
+            return None
 
-    def extra(self) -> dict:
+    def extra(self) -> dict | None:
         try:
-            return self._m11_import.extra()
+            if self._m11_import:
+                return self._m11_import.extra()
+            else:
+                raise RuntimeError
         except Exception as e:
             location = KlassMethodLocation(self.MODULE, "extra")
             self._errors.exception(
-                "Exception raised obraing extra information", e, location
+                "Exception raised obtaining extra information", e, location
             )
+            return None
 
     @property
     def errors(self):

@@ -40,7 +40,7 @@ class M11Import:
         self._estimands.process()
         self._sections.process()
 
-    def to_usdm(self) -> Wrapper:
+    def to_usdm(self) -> str | None:
         usdm = M11ToUSDM(
             self._builder,
             self._errors,
